@@ -16,6 +16,31 @@ firebaseClient.syncProfile({streak:next});
 return next;
 });
 
+import firebaseClient from '../shared/firebaseClient';
+import { useEffect, useState } from 'react';
+
+// inside component:
+const [user, setUser] = useState(null);
+
+useEffect(()=>{
+  // start listening to auth state
+  const unsubscribe = firebaseClient.onAuthStateChanged(u => setUser(u));
+  return () => unsubscribe && unsubscribe();
+},[]);
+
+async function handleSignIn(){
+  const u = await firebaseClient.signInWithGoogle();
+  if(u) {
+    // optionally fetch profile after sign-in
+    const profile = await firebaseClient.fetchProfile();
+    // update UI or local storage accordingly
+  } else {
+    // show error
+    alert('Sign-in failed. Try again.');
+  }
+}
+
+
 
 // notification
 chrome.runtime.sendMessage({type:'session_complete'});
